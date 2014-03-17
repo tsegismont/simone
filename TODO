@@ -2,3 +2,4 @@
 -- Filesystem list && statistics
 -- File stat -> available in JNR POSIX?
 -- All features on Windows and Mac OS X
+-- Better error handling
