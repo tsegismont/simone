@@ -30,7 +30,7 @@ public class ConsoleLog implements Log {
   private static final Level LEVEL;
 
   static {
-    String requiredLevel = System.getProperty("jnr.simone.console.log.level");
+    String requiredLevel = System.getProperty("simone.console.log.level");
     Level levelToSet = Level.WARN;
     for (Level level : Level.values()) {
       if (level.toString().equalsIgnoreCase(requiredLevel)) {
