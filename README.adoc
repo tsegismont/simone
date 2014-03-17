@@ -11,3 +11,9 @@ Currently, you can get information on CPUs, Memory and Processes on Linux system
 networks statistics.
 
 Windows and Mac OS X are planned as target platforms.
+
+= How to use it
+
+It's not yet available in any Maven repository so you'll have to build it yourself:
+[source,bash]
+mvn clean install
