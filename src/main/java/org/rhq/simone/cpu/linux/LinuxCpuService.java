@@ -17,8 +17,10 @@
 package org.rhq.simone.cpu.linux;
 
 import static java.lang.Long.parseLong;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.rhq.simone.util.IOUtil.closeQuietly;
 import static org.rhq.simone.util.IOUtil.readLines;
+import static org.rhq.simone.util.TickUtil.ticksToTimeUnit;
 
 import jnr.constants.platform.Sysconf;
 import jnr.posix.POSIX;
@@ -49,14 +51,12 @@ public class LinuxCpuService implements CpuService {
 
   private static final CpuUsageLineFilter CPU_USAGE_LINE_FILTER = new CpuUsageLineFilter();
 
-  private final POSIX posix;
   private final int cpuCount;
-  private final long ticks;
+  private final long ticksPerSecond;
 
   public LinuxCpuService(POSIX posix) {
-    this.posix = posix;
     cpuCount = (int) posix.sysconf(Sysconf._SC_NPROCESSORS_CONF);
-    ticks = posix.sysconf(Sysconf._SC_CLK_TCK);
+    ticksPerSecond = posix.sysconf(Sysconf._SC_CLK_TCK);
   }
 
   @Override
@@ -112,30 +112,34 @@ public class LinuxCpuService implements CpuService {
     }
     StringTokenizer tokenizer = new StringTokenizer(line);
     tokenizer.nextToken(); // Advance past 'cpu' token
-    long user = (1000 * parseLong(tokenizer.nextToken())) / ticks;
-    long nice = (1000 * parseLong(tokenizer.nextToken())) / ticks;
-    long system = (1000 * parseLong(tokenizer.nextToken())) / ticks;
-    long idle = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+    long user = convertNextTokenFromTicksToMillis(tokenizer);
+    long nice = convertNextTokenFromTicksToMillis(tokenizer);
+    long system = convertNextTokenFromTicksToMillis(tokenizer);
+    long idle = convertNextTokenFromTicksToMillis(tokenizer);
     long ioWait = 0, irq = 0, softIrq = 0, steal = 0, guest = 0, guestNice = 0;
     if (tokenizer.hasMoreTokens()) {
-      ioWait = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      ioWait = convertNextTokenFromTicksToMillis(tokenizer);
     }
     if (tokenizer.hasMoreTokens()) {
-      irq = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      irq = convertNextTokenFromTicksToMillis(tokenizer);
     }
     if (tokenizer.hasMoreTokens()) {
-      softIrq = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      softIrq = convertNextTokenFromTicksToMillis(tokenizer);
     }
     if (tokenizer.hasMoreTokens()) {
-      steal = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      steal = convertNextTokenFromTicksToMillis(tokenizer);
     }
     if (tokenizer.hasMoreTokens()) {
-      guest = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      guest = convertNextTokenFromTicksToMillis(tokenizer);
     }
     if (tokenizer.hasMoreTokens()) {
-      guestNice = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+      guestNice = convertNextTokenFromTicksToMillis(tokenizer);
     }
     return new CpuUsage(user, nice, system, idle, ioWait, irq, softIrq, steal, guest, guestNice);
+  }
+
+  private long convertNextTokenFromTicksToMillis(StringTokenizer tokenizer) {
+    return ticksToTimeUnit(parseLong(tokenizer.nextToken()), ticksPerSecond, MILLISECONDS);
   }
 
   private static class CpuUsageLineFilter implements IOUtil.LineFilter {

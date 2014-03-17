@@ -18,6 +18,8 @@ package org.rhq.simone.process.linux;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.Long.parseLong;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.rhq.simone.process.ProcessDetails.State.PAGING;
 import static org.rhq.simone.process.ProcessDetails.State.RUNNING;
 import static org.rhq.simone.process.ProcessDetails.State.SLEEPING;
@@ -29,6 +31,7 @@ import static org.rhq.simone.util.IOUtil.LineFilter;
 import static org.rhq.simone.util.IOUtil.readFirstLine;
 import static org.rhq.simone.util.IOUtil.readLines;
 import static org.rhq.simone.util.SizeUnit.BYTES;
+import static org.rhq.simone.util.TickUtil.ticksToTimeUnit;
 import static org.rhq.simone.util.TokenizerUtil.skip1Token;
 import static org.rhq.simone.util.TokenizerUtil.skipNTokens;
 
@@ -67,12 +70,12 @@ public class LinuxProcessService implements ProcessService {
 
   private final POSIX posix;
   private final long pageSize;
-  private final long ticks;
+  private final long ticksPerSecond;
 
   public LinuxProcessService(POSIX posix) {
     this.posix = posix;
     pageSize = posix.sysconf(Sysconf._SC_PAGESIZE);
-    ticks = posix.sysconf(Sysconf._SC_CLK_TCK);
+    ticksPerSecond = posix.sysconf(Sysconf._SC_CLK_TCK);
   }
 
   @Override
@@ -132,7 +135,7 @@ public class LinuxProcessService implements ProcessService {
     skipNTokens(tokenizer, 15);
     int threadCount = parseInt(tokenizer.nextToken());
     skip1Token(tokenizer);
-    long startTime = parseLong(tokenizer.nextToken()) / ticks;
+    long startTime = ticksToTimeUnit(parseLong(tokenizer.nextToken()), ticksPerSecond, SECONDS);
     return new ProcessDetails(pid, parentPid, executableName, state, threadCount, startTime);
   }
 
@@ -151,9 +154,13 @@ public class LinuxProcessService implements ProcessService {
     String line = readFirstLine(new File("/proc/" + pid + "/stat"));
     StringTokenizer tokenizer = new StringTokenizer(line);
     skipNTokens(tokenizer, 13);
-    long user = (1000 * parseLong(tokenizer.nextToken())) / ticks;
-    long system = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+    long user = convertNextTokenFromTicksToMillis(tokenizer);
+    long system = convertNextTokenFromTicksToMillis(tokenizer);
     return new ProcessCpuUsage(user, system, System.currentTimeMillis());
+  }
+
+  private long convertNextTokenFromTicksToMillis(StringTokenizer tokenizer) {
+    return ticksToTimeUnit(parseLong(tokenizer.nextToken()), ticksPerSecond, MILLISECONDS);
   }
 
   @Override
