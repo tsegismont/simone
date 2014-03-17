@@ -17,3 +17,7 @@ Windows and Mac OS X are planned as target platforms.
 It's not yet available in any Maven repository so you'll have to build it yourself:
 [source,bash]
 mvn clean install
+
+= Contact
+
+Please use GitHub issues for any questions or feedback.
