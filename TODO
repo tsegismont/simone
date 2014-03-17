@@ -1,0 +1,10 @@
+Check percentage
+-they should appear in toString, but be accessibe as ratios
+-they should be float but computed with doubles
+Check usage of ticks (seconds or milliseconds)
+
+Features:
+-- Networks list && statistics
+-- Filesystem list && statistics
+-- File stat -> available in JNR POSIX?
+-- All features on Windows and Mac OS X

@@ -1,0 +1,13 @@
+= Simone
+
+In English, http://en.wiktionary.org/wiki/Simone[pronounce sə-mōn']
+
+Simone is a Java library for system monitoring, with no JNI code. Native invocation, when needed, is provided by
+https://github.com/jnr/jnr-ffi[JNR] and friends (https://github.com/jnr/jnr-posix[JNR Posix], ... etc)
+
+*_This work is experimental._*
+
+Currently, you can get information on CPUs, Memory and Processes on Linux systems. Next step is filesystems and
+networks statistics.
+
+Windows and Mac OS X are planned as target platforms.
