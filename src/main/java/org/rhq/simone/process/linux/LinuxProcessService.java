@@ -132,7 +132,6 @@ public class LinuxProcessService implements ProcessService {
     skipNTokens(tokenizer, 15);
     int threadCount = parseInt(tokenizer.nextToken());
     skip1Token(tokenizer);
-    // FIXME
     long startTime = parseLong(tokenizer.nextToken()) / ticks;
     return new ProcessDetails(pid, parentPid, executableName, state, threadCount, startTime);
   }
@@ -152,8 +151,8 @@ public class LinuxProcessService implements ProcessService {
     String line = readFirstLine(new File("/proc/" + pid + "/stat"));
     StringTokenizer tokenizer = new StringTokenizer(line);
     skipNTokens(tokenizer, 13);
-    long user = parseLong(tokenizer.nextToken()) / ticks;
-    long system = parseLong(tokenizer.nextToken()) / ticks;
+    long user = (1000 * parseLong(tokenizer.nextToken())) / ticks;
+    long system = (1000 * parseLong(tokenizer.nextToken())) / ticks;
     return new ProcessCpuUsage(user, system, System.currentTimeMillis());
   }
 
