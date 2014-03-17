@@ -36,7 +36,6 @@
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
     <fastBuild>false</fastBuild>
   </properties>
 
@@ -110,7 +109,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.0</version>
+        <version>3.1</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -166,7 +165,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
-        <version>${maven-javadoc-plugin.version}</version>
+        <version>2.9.1</version>
         <configuration>
           <skip>${fastBuild}</skip>
         </configuration>
@@ -179,7 +178,73 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-deploy-plugin</artifactId>
+        <version>2.8</version>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.4.1</version>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+          <preparationGoals>verify</preparationGoals>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
+
+  <inceptionYear>2014</inceptionYear>
+  <url>http://tsegismont.github.io/simone/</url>
+
+  <developers>
+    <developer>
+      <id>tsegismont</id>
+      <name>Thomas Segismont</name>
+      <timezone>Europe/Paris</timezone>
+    </developer>
+  </developers>
+
+  <organization>
+    <name>Red Hat, Inc.</name>
+    <url>http://www.redhat.com/</url>
+  </organization>
+
+  <licenses>
+    <license>
+      <name>Apache License Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+    </license>
+  </licenses>
+
+  <issueManagement>
+    <system>GitHub Issues</system>
+    <url>https://github.com/tsegismont/simone/issues</url>
+  </issueManagement>
+
+  <mailingLists>
+    <mailingList>
+      <name>RHQ Developers List</name>
+      <subscribe>https://lists.fedorahosted.org/mailman/listinfo/rhq-devel</subscribe>
+      <unsubscribe>https://lists.fedorahosted.org/mailman/listinfo/rhq-devel</unsubscribe>
+      <post>rhq-devel@lists.fedorahosted.org</post>
+      <archive>https://lists.fedorahosted.org/pipermail/rhq-devel/</archive>
+    </mailingList>
+  </mailingLists>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>jboss-snapshots-repository</id>
+      <name>JBoss Snapshots Repository</name>
+      <url>https://repository.jboss.org/nexus/content/repositories/snapshots/</url>
+    </snapshotRepository>
+    <repository>
+      <id>jboss-releases-repository</id>
+      <name>JBoss Releases Repository</name>
+      <url>https://repository.jboss.org/nexus/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 
 </project>
